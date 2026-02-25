@@ -73,7 +73,7 @@ def save_metrics():
 
 
 def history_loop():
-    schedule.every().day.at("12:15", "US/Eastern").do(save_metrics)
+    schedule.every().day.at("00:00", "US/Eastern").do(save_metrics)
     while True:
         schedule.run_pending()
         time.sleep(30)
