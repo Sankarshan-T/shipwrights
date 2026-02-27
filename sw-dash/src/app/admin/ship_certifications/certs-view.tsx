@@ -111,9 +111,65 @@ function Dropdown({
   )
 }
 
+function MultiSelect({
+  label,
+  values,
+  options,
+  onChange,
+}: {
+  label: string
+  values: string[]
+  options: { val: string; label: string }[]
+  onChange: (v: string[]) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  useClickOutside(ref, () => setOpen(false))
+
+  const toggle = (val: string) => {
+    onChange(values.includes(val) ? values.filter((v) => v !== val) : [...values, val])
+  }
+
+  const display = values.length === 0 ? 'All' : values.join(', ')
+
+  return (
+    <div className="space-y-1">
+      <label className="text-amber-400 font-mono text-xs">{label}</label>
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="w-full flex items-center justify-between bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2 font-mono text-xs text-white focus:outline-none focus:border-amber-600 hover:border-zinc-500 transition-colors"
+        >
+          <span className="truncate">{display}</span>
+          <span className="text-gray-400 ml-2">{open ? '▲' : '▼'}</span>
+        </button>
+        {open && (
+          <div className="absolute z-50 top-full mt-1 w-full bg-zinc-900 border border-zinc-700 rounded-xl overflow-hidden shadow-2xl">
+            {options.map((o) => (
+              <button
+                key={o.val}
+                onClick={() => toggle(o.val)}
+                className={`w-full text-left px-3 py-2 font-mono text-xs transition-colors flex items-center gap-2 ${
+                  values.includes(o.val)
+                    ? 'bg-amber-900/50 text-amber-300'
+                    : 'text-gray-300 hover:bg-zinc-800'
+                }`}
+              >
+                <span className="w-3 h-3 border border-current rounded-sm flex items-center justify-center flex-shrink-0">
+                  {values.includes(o.val) && <span className="text-[8px] leading-none">✓</span>}
+                </span>
+                {o.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function CertsView({ initial }: Props) {
   const params = useSearchParams()
-  const [type, setType] = useState('all')
   const [ftType, setFtType] = useState('all')
   const [status, setStatus] = useState('pending')
   const [sortBy, setSortBy] = useState('oldest')
@@ -128,6 +184,7 @@ export function CertsView({ initial }: Props) {
   const [msg, setMsg] = useState<string | null>(null)
   const [now, setNow] = useState(Date.now())
   const [lbMode, setLbMode] = useState('weekly')
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
 
   useEffect(() => {
     if (params.get('success')) {
@@ -140,7 +197,7 @@ export function CertsView({ initial }: Props) {
     setLoading(true)
     try {
       const p = new URLSearchParams()
-      if (type !== 'all') p.set('type', type)
+      if (selectedTypes.length > 0) p.set('type', selectedTypes.join(','))
       if (ftType !== 'all') p.set('ftType', ftType)
       if (status !== 'all') p.set('status', status)
       p.set('sortBy', sortBy)
@@ -159,7 +216,7 @@ export function CertsView({ initial }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [type, ftType, status, sortBy, lbMode, search, from, to])
+  }, [selectedTypes, ftType, status, sortBy, lbMode, search, from, to])
 
   const ready = useRef(false)
 
@@ -169,7 +226,7 @@ export function CertsView({ initial }: Props) {
       return
     }
     load()
-  }, [type, ftType, status, sortBy, lbMode, search, from, to, load])
+  }, [selectedTypes, ftType, status, sortBy, lbMode, search, from, to, load])
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000)
@@ -409,14 +466,11 @@ export function CertsView({ initial }: Props) {
             ]}
             onChange={setFtType}
           />
-          <Dropdown
+          <MultiSelect
             label="Type"
-            value={type}
-            options={[
-              { val: 'all', label: `All (${stats.totalJudged})` },
-              ...types.map((t) => ({ val: t.type, label: `${t.type} (${t.count})` })),
-            ]}
-            onChange={setType}
+            values={selectedTypes}
+            options={types.map((t) => ({ val: t.type, label: `${t.type} (${t.count})` }))}
+            onChange={setSelectedTypes}
           />
         </div>
 

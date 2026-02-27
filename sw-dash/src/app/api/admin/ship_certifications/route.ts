@@ -6,7 +6,8 @@ import { api } from '@/lib/api'
 export const GET = api(PERMS.certs_view)(async ({ req }) => {
   try {
     const { searchParams } = new URL(req.url)
-    const type = searchParams.get('type')
+    const rawType = searchParams.get('type')
+    const type = rawType ? rawType.split(',').filter(Boolean) : null
     const ftType = searchParams.get('ftType')
     const status = searchParams.get('status')
     const sortBy = searchParams.get('sortBy') || 'newest'

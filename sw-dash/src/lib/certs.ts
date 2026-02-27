@@ -2,7 +2,7 @@ import { prisma } from '@/lib/db'
 import { cache, genKey } from '@/lib/cache'
 
 interface Filters {
-  type?: string | null
+  type?: string[] | null
   ftType?: string | null
   status?: string | null
   sortBy?: string
@@ -261,7 +261,7 @@ async function fetchList(filters: Filters) {
   const thirtyMinsAgo = new Date(Date.now() - 30 * 60 * 1000)
 
   const where: Record<string, unknown> = {}
-  if (type && type !== 'all') where.projectType = type
+  if (type && type.length > 0) where.projectType = { in: type }
   if (filters.ftType && filters.ftType !== 'all') where.ftType = filters.ftType
   if (status && status !== 'all') where.status = status
   if (filters.from || filters.to) {
@@ -356,7 +356,7 @@ async function getStats(lbMode: string) {
 // Cached list fetcher - includes sortBy
 async function getList(filters: Filters) {
   const key = genKey('certs-list', {
-    type: filters.type || null,
+    type: filters.type?.join(',') || null,
     ftType: filters.ftType || null,
     status: filters.status || null,
     sortBy: filters.sortBy || 'newest',
