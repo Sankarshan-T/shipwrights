@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Cert, Stats, TypeCount, Reviewer } from '@/types'
 import { AvgWaitChart } from './avg-wait-chart'
@@ -135,12 +135,25 @@ function MultiSelect({
 
 export function CertsView({ initial }: Props) {
   const params = useSearchParams()
-  const [ftType, setFtType] = useState('all')
-  const [status, setStatus] = useState('pending')
-  const [sortBy, setSortBy] = useState('oldest')
-  const [search, setSearch] = useState('')
-  const [from, setFrom] = useState('')
-  const [to, setTo] = useState('')
+  const router = useRouter()
+
+  // Determine if URL has non-default filters (server always pre-renders with pending/oldest/weekly)
+  const needsInitialLoad =
+    (params.get('status') ?? 'pending') !== 'pending' ||
+    (params.get('sortBy') ?? 'oldest') !== 'oldest' ||
+    (params.get('lbMode') ?? 'weekly') !== 'weekly' ||
+    !!params.get('type') ||
+    !!params.get('ftType') ||
+    !!params.get('search') ||
+    !!params.get('from') ||
+    !!params.get('to')
+
+  const [ftType, setFtType] = useState(() => params.get('ftType') || 'all')
+  const [status, setStatus] = useState(() => params.get('status') || 'pending')
+  const [sortBy, setSortBy] = useState(() => params.get('sortBy') || 'oldest')
+  const [search, setSearch] = useState(() => params.get('search') || '')
+  const [from, setFrom] = useState(() => params.get('from') || '')
+  const [to, setTo] = useState(() => params.get('to') || '')
   const [certs, setCerts] = useState(initial.certs)
   const [stats, setStats] = useState(initial.stats)
   const [leaderboard, setLeaderboard] = useState(initial.leaderboard)
@@ -148,8 +161,11 @@ export function CertsView({ initial }: Props) {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
   const [now, setNow] = useState(Date.now())
-  const [lbMode, setLbMode] = useState('weekly')
-  const [selectedTypes, setSelectedTypes] = useState<string[]>([])
+  const [lbMode, setLbMode] = useState(() => params.get('lbMode') || 'weekly')
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(() => {
+    const t = params.get('type')
+    return t ? t.split(',').filter(Boolean) : []
+  })
 
   useEffect(() => {
     if (params.get('success')) {
@@ -183,7 +199,8 @@ export function CertsView({ initial }: Props) {
     }
   }, [selectedTypes, ftType, status, sortBy, lbMode, search, from, to])
 
-  const ready = useRef(false)
+  // If URL has non-default filters, skip the initial-load guard so we fetch the right data
+  const ready = useRef(!needsInitialLoad)
 
   useEffect(() => {
     if (!ready.current) {
@@ -192,6 +209,21 @@ export function CertsView({ initial }: Props) {
     }
     load()
   }, [selectedTypes, ftType, status, sortBy, lbMode, search, from, to, load])
+
+  // Sync filter state → URL so the browser Back button restores the view
+  useEffect(() => {
+    const p = new URLSearchParams()
+    if (selectedTypes.length > 0) p.set('type', selectedTypes.join(','))
+    if (ftType !== 'all') p.set('ftType', ftType)
+    if (status !== 'all') p.set('status', status)
+    if (sortBy !== 'oldest') p.set('sortBy', sortBy)
+    if (lbMode !== 'weekly') p.set('lbMode', lbMode)
+    if (search) p.set('search', search)
+    if (from) p.set('from', from)
+    if (to) p.set('to', to)
+    const qs = p.toString()
+    router.replace(`/admin/ship_certifications${qs ? `?${qs}` : ''}`, { scroll: false })
+  }, [selectedTypes, ftType, status, sortBy, lbMode, search, from, to, router])
 
   useEffect(() => {
     const iv = setInterval(() => setNow(Date.now()), 1000)
