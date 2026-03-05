@@ -2,7 +2,6 @@ import os, json, summary, threading
 import db, helpers, api, home, relay, ai, msg_blocks
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
-from summary import send_reminder
 from globals import BOT_TOKEN, USER_CHANNEL, STAFF_CHANNEL, RESOLVE_MESSAGES, USER_CLOSED_MESSAGE, TICKET_CLAIMED, ALREADY_CLAIMED, CANNOT_CLOSE_OWN, MESSAGE_NOT_RECEIVED
 from cache import cache
 
@@ -138,7 +137,7 @@ def resolve_detected(ack, body, client):
         client.chat_postMessage(
             channel=STAFF_CHANNEL,
             thread_ts=ticket["staffThreadTs"],
-            text=RESOLVE_MESSAGES["staff"].replace("user", user_id),
+            text=RESOLVE_MESSAGES["staff"].replace("(user_id)", user_id),
         )
         client.chat_postMessage(
             channel=USER_CHANNEL,
@@ -193,7 +192,7 @@ def resolve_ticket(ack, body, client):
         client.chat_postMessage(
             channel=STAFF_CHANNEL,
             thread_ts=ticket["staffThreadTs"],
-            text=RESOLVE_MESSAGES["staff"].replace("user", user_id),
+            text=RESOLVE_MESSAGES["staff"].replace("(user_id)", user_id),
         )
         client.chat_postMessage(
             channel=USER_CHANNEL,
@@ -227,7 +226,7 @@ def resolve_ticket(ack, body, client):
         client.chat_postMessage(
             channel=STAFF_CHANNEL,
             thread_ts=ticket["staffThreadTs"],
-            text=RESOLVE_MESSAGES["staff"].replace("(user)", user_id),
+            text=RESOLVE_MESSAGES["staff"].replace("(user_id)", user_id),
         )
         client.chat_postMessage(
             channel=USER_CHANNEL,
