@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db'
 
 const BACKLOG_DAYS = 5
 const OLD_CERT_DAYS = 5
+const MAX_LOOKBACK_DAYS = 90
 
 export const GET = api(PERMS.captain_dashboard)(async ({ user, req }) => {
   const now = new Date()
@@ -14,7 +15,10 @@ export const GET = api(PERMS.captain_dashboard)(async ({ user, req }) => {
   const sinceParam = url.searchParams.get('since')
   if (sinceParam) {
     const parsed = new Date(sinceParam)
-    if (!Number.isNaN(parsed.getTime())) since = parsed
+    if (!Number.isNaN(parsed.getTime())) {
+      const minSince = new Date(now.getTime() - MAX_LOOKBACK_DAYS * 24 * 60 * 60 * 1000)
+      since = parsed < minSince ? minSince : parsed
+    }
   }
 
   const backlogCutoff = new Date(now.getTime() - BACKLOG_DAYS * 24 * 60 * 60 * 1000)
@@ -66,17 +70,23 @@ export const GET = api(PERMS.captain_dashboard)(async ({ user, req }) => {
     },
   })
 
+  const byReviewerArray = reviewers
+    .map((r) => ({
+      reviewerId: r.id,
+      username: r.username,
+      total: byReviewer[r.id]?.total ?? 0,
+      oldCerts: byReviewer[r.id]?.oldCerts ?? 0,
+    }))
+    .sort((a, b) => (b.total !== a.total ? b.total - a.total : a.username.localeCompare(b.username)))
+
   return NextResponse.json({
     since: since.toISOString(),
+    backlogDays: BACKLOG_DAYS,
+    oldCertDays: OLD_CERT_DAYS,
     reviewedSince: {
       total: reviewedSince.length,
       oldCertsReviewed: oldCertsReviewedSince,
-      byReviewer: reviewers.map((r) => ({
-        reviewerId: r.id,
-        username: r.username,
-        total: byReviewer[r.id]?.total ?? 0,
-        oldCerts: byReviewer[r.id]?.oldCerts ?? 0,
-      })),
+      byReviewer: byReviewerArray,
     },
     backlogCount,
   })

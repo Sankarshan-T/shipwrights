@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Crew } from '@/components/admin/crew'
 import { ErrorBanner } from '@/components/admin/error-banner'
 import { ProfileCard } from '@/components/admin/profile-card'
 import { useUser } from '@/components/providers/user-context'
+import { can, PERMS } from '@/lib/perms'
 
 type DashboardData = {
   since: string
+  backlogDays: number
+  oldCertDays: number
   reviewedSince: {
     total: number
     oldCertsReviewed: number
@@ -41,6 +45,7 @@ function fetchDashboard(sinceIso: string | null): Promise<DashboardData> {
 
 export default function CaptainPage() {
   const { user } = useUser()
+  const router = useRouter()
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -67,6 +72,10 @@ export default function CaptainPage() {
   }
 
   if (!user) return null
+  if (!can(user.role, PERMS.captain_dashboard)) {
+    router.replace('/admin')
+    return null
+  }
 
   return (
     <main
@@ -158,7 +167,7 @@ export default function CaptainPage() {
                       {data.reviewedSince.oldCertsReviewed}
                     </div>
                     <div className="font-mono text-sm text-amber-300/80">
-                      older than 5 days reviewed
+                      older than {data.oldCertDays} days reviewed
                     </div>
                   </div>
                 </div>
@@ -189,7 +198,7 @@ export default function CaptainPage() {
                           <strong>{r.total}</strong> reviewed
                           {r.oldCerts > 0 && (
                             <span className="text-amber-500/80 ml-1">
-                              ({r.oldCerts} older than 5d)
+                              ({r.oldCerts} older than {data.oldCertDays}d)
                             </span>
                           )}
                         </span>
@@ -201,7 +210,7 @@ export default function CaptainPage() {
               <div className="bg-zinc-900/90 border-2 border-amber-900/40 rounded-2xl p-6 shadow-xl">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-amber-500/70 text-xs uppercase tracking-wider">
-                    Backlog (older than 5 days)
+                    Backlog (older than {data.backlogDays} days)
                   </span>
                   <Link
                     href="/admin/ship_certifications?backlog=1"
