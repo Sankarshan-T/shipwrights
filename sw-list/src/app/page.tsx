@@ -13,10 +13,12 @@ const QUOTES = [
 
 const ROLE_COLORS: Record<string, string> = {
   megawright: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
+  captain: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   shipwright: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   trainee: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   retired: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30',
   ysws_reviewer: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  sw_ysws: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
 }
 
 function color(role: string) {
@@ -109,8 +111,8 @@ function Card({
 }
 
 export default async function Page() {
-  const crew = shuffle(await load(['trainee', 'shipwright', 'megawright']))
-  const reviewers = shuffle(await load('ysws_reviewer'))
+  const crew = shuffle(await load(['trainee', 'shipwright', 'megawright', 'captain', 'sw_ysws']))
+  const reviewers = shuffle(await load(['ysws_reviewer', 'sw_ysws']))
   const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)]
 
   return (
