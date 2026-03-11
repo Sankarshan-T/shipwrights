@@ -2,9 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { getUser } from '@/lib/server-auth'
 import { can, PERMS } from '@/lib/perms'
-import { Crew } from '@/components/admin/crew'
 import { ErrorBanner } from '@/components/admin/error-banner'
-import { ProfileCard } from '@/components/admin/profile-card'
 
 export default async function CaptainTeamPage() {
   const user = await getUser()
@@ -17,16 +15,9 @@ export default async function CaptainTeamPage() {
       role="main"
       aria-label="Captain team"
     >
-      <Crew />
       <ErrorBanner />
 
       <div className="max-w-4xl w-full">
-        <div className="mb-6 md:mb-8">
-          <ProfileCard
-            user={{ id: user.id, username: user.username, avatar: user.avatar, role: user.role }}
-          />
-        </div>
-
         <div className="mb-6 md:mb-8 max-w-2xl mx-auto">
           <h3 className="text-amber-500/70 font-mono text-xs uppercase tracking-wider mb-3 px-2">
             Captain → Team

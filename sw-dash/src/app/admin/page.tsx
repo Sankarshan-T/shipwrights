@@ -12,7 +12,7 @@ export default async function Admin() {
   const user = await getUser()
   if (!user) redirect('/')
 
-  if (can(user.role, PERMS.captain_dashboard) && user.role === 'captain') {
+  if (user.role === 'captain') {
     redirect('/admin/captain')
   }
 
