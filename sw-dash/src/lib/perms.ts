@@ -36,6 +36,7 @@ export const PERMS = {
   billy_btn: 'billy_btn',
   joe_btn: 'joe_btn',
   spot_check: 'spot_check',
+  captain_dashboard: 'captain_dashboard',
 
   submitter_edit: 'submitter_edit',
   submitter_delete: 'submitter_delete',
@@ -61,6 +62,10 @@ export const ROLES = {
       PERMS.certs_admin,
       //PERMS.assign_admin,
       PERMS.support_admin,
+      PERMS.analytics_view,
+      PERMS.ysws_view,
+      PERMS.submitter_delete,
+      PERMS.captain_dashboard,
     ],
   },
   shipwright: {
@@ -129,6 +134,8 @@ export function can(userRole: string, perm: string): boolean {
     [PERMS.certs_view]: PERMS.certs_admin,
     [PERMS.certs_edit]: PERMS.certs_admin,
     [PERMS.certs_override]: PERMS.certs_admin,
+    [PERMS.certs_bounty]: PERMS.certs_admin,
+    [PERMS.certs_report]: PERMS.certs_admin,
     [PERMS.users_view]: PERMS.users_admin,
     [PERMS.users_add]: PERMS.users_admin,
     [PERMS.users_edit]: PERMS.users_admin,
