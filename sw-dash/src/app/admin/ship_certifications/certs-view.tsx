@@ -528,7 +528,7 @@ export function CertsView({ initial, showReturnedByAdmin = false, isReturnedView
                 )}
                 {c.yswsReturned ? (
                   <span className="bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded font-mono text-xs">
-                    {showReturnedByAdmin ? 'RETURNED BY ADMIN' : 'RETURNED'}
+                    {showReturnedByAdmin ? `RETURNED BY ${c.yswsReturnedBy ?? 'admin'}` : 'RETURNED'}
                   </span>
                 ) : (
                   <span
@@ -539,10 +539,9 @@ export function CertsView({ initial, showReturnedByAdmin = false, isReturnedView
                 )}
               </div>
             </div>
-            {c.yswsReturned && showReturnedByAdmin && (
+            {c.yswsReturned && showReturnedByAdmin && c.yswsReturnReason && (
               <div className="text-purple-300/80 font-mono text-xs mb-2">
-                <div>{c.yswsReturnReason}</div>
-                <div className="text-gray-500">by {c.yswsReturnedBy}</div>
+                {c.yswsReturnReason}
               </div>
             )}
             <div className="grid grid-cols-2 gap-2 text-xs font-mono">
@@ -623,12 +622,13 @@ export function CertsView({ initial, showReturnedByAdmin = false, isReturnedView
                       showReturnedByAdmin ? (
                         <div>
                           <span className="bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded font-mono text-xs">
-                            RETURNED BY ADMIN
+                            RETURNED BY {c.yswsReturnedBy ?? 'admin'}
                           </span>
-                          <div className="text-purple-300/70 font-mono text-xs mt-1">
-                            {c.yswsReturnReason}
-                          </div>
-                          <div className="text-gray-500 font-mono text-xs">by {c.yswsReturnedBy}</div>
+                          {c.yswsReturnReason && (
+                            <div className="text-purple-300/70 font-mono text-xs mt-1">
+                              {c.yswsReturnReason}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <span className="bg-purple-900/60 text-purple-300 px-2 py-0.5 rounded font-mono text-xs">
