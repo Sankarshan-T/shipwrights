@@ -67,7 +67,7 @@ export const POST = withParams()(async ({ user, req, params, ip, ua }) => {
 
     await prisma.user.update({
       where: { id: userId },
-      data: { skills: skills },
+      data: { skills: JSON.stringify(skills) },
     })
 
     if (!isSelf) {
