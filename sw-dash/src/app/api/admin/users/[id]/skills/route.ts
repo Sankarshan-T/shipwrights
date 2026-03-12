@@ -27,7 +27,7 @@ export const GET = withParams()(async ({ user, params }) => {
       return NextResponse.json({ error: 'who dat' }, { status: 404 })
     }
 
-    return NextResponse.json({ skills: target.skills || [] })
+    return NextResponse.json({ skills: JSON.parse(target.skills || '[]') })
   } catch {
     return NextResponse.json({ error: 'couldnt grab skills' }, { status: 500 })
   }
