@@ -16,7 +16,18 @@ export async function GET(req: NextRequest) {
     windowStart.setHours(0, 0, 0, 0)
     const metricsWindowStart = new Date(now)
     metricsWindowStart.setDate(metricsWindowStart.getDate() - 30)
-    const [data, pendingCerts, reviewStats, shipStats, metricsHistory] = await Promise.all([
+    const npsWindowStart = new Date(now)
+    npsWindowStart.setDate(npsWindowStart.getDate() - 7 * 52)
+    npsWindowStart.setHours(0, 0, 0, 0)
+    const [
+      data,
+      pendingCerts,
+      reviewStats,
+      shipStats,
+      metricsHistory,
+      npsWeeklyStats,
+      npsOverallAvg,
+    ] = await Promise.all([
       getCerts({}),
       prisma.shipCert.findMany({
         where: { status: 'pending', yswsReturnedAt: null },
@@ -57,6 +68,20 @@ export async function GET(req: NextRequest) {
           output: true,
         },
       }),
+      prisma.$queryRaw<{ week: string; avgRating: number }[]>`
+        SELECT 
+          DATE_FORMAT(createdAt, '%x-W%v') as week,
+          AVG(rating) as avgRating
+        FROM ticket_feedback
+        WHERE createdAt >= ${npsWindowStart}
+        GROUP BY DATE_FORMAT(createdAt, '%x-W%v')
+        ORDER BY week ASC
+      `,
+      prisma.ticketFeedback.aggregate({
+        _avg: {
+          rating: true,
+        },
+      }),
     ])
 
     let oldestWait = '-'
@@ -84,6 +109,7 @@ export async function GET(req: NextRequest) {
     const avgQueue: Record<string, number> = {}
     const reviewsPerDay: Record<string, number> = {}
     const shipsPerDay: Record<string, number> = {}
+    const pendingPerDay: Record<string, number> = {}
 
     for (let i = 29; i >= 0; i--) {
       const day = new Date(now)
@@ -93,6 +119,7 @@ export async function GET(req: NextRequest) {
       avgQueue[dateKey] = 0
       reviewsPerDay[dateKey] = 0
       shipsPerDay[dateKey] = 0
+      pendingPerDay[dateKey] = 0
     }
 
     for (const row of reviewStats) {
@@ -110,6 +137,25 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    let currentPending = data.stats.pending
+    for (let i = 0; i < 30; i++) {
+      const day = new Date(now)
+      day.setDate(day.getDate() - i)
+      day.setHours(0, 0, 0, 0)
+      const dateKey = day.toISOString().split('T')[0]
+      if (dateKey in pendingPerDay) {
+        pendingPerDay[dateKey] = currentPending
+        currentPending =
+          currentPending - (shipsPerDay[dateKey] || 0) + (reviewsPerDay[dateKey] || 0)
+        if (currentPending < 0) currentPending = 0
+      }
+    }
+
+    const weeklyNps: Record<string, number> = {}
+    for (const row of npsWeeklyStats) {
+      weeklyNps[row.week] = Number(row.avgRating) || 0
+    }
+
     return NextResponse.json({
       totalJudged: data.stats.totalJudged,
       approved: data.stats.approved,
@@ -123,7 +169,10 @@ export async function GET(req: NextRequest) {
       oldestInQueue: oldestWait,
       reviewsPerDay: reviewsPerDay,
       shipsPerDay: shipsPerDay,
+      pendingPerDay: pendingPerDay,
       metricsHistory: metricsHistory,
+      overallNpsMean: npsOverallAvg._avg.rating || 0,
+      weeklyNps: weeklyNps,
     })
   } catch (err) {
     reportError(err instanceof Error ? err : new Error(String(err)), { endpoint: 'ship-certs' })
