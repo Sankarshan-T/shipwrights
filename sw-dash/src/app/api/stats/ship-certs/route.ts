@@ -137,6 +137,7 @@ export async function GET(req: NextRequest) {
     for (let i = 0; i < 30; i++) {
       const day = new Date(now)
       day.setDate(day.getDate() - i)
+      day.setHours(0, 0, 0, 0)
       const dateKey = day.toISOString().split('T')[0]
       if (dateKey in pendingPerDay) {
         pendingPerDay[dateKey] = currentPending
