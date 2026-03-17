@@ -27,6 +27,7 @@ export async function GET(req: NextRequest) {
       metricsHistory,
       npsWeeklyStats,
       npsOverallAvg,
+      allTicketFeedback,
     ] = await Promise.all([
       getCerts({}),
       prisma.shipCert.findMany({
@@ -80,6 +81,16 @@ export async function GET(req: NextRequest) {
       prisma.ticketFeedback.aggregate({
         _avg: {
           rating: true,
+        },
+      }),
+      prisma.ticketFeedback.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          ticketId: true,
+          rating: true,
+          comment: true,
+          createdAt: true,
         },
       }),
     ])
@@ -160,7 +171,6 @@ export async function GET(req: NextRequest) {
       totalJudged: data.stats.totalJudged,
       approved: data.stats.approved,
       rejected: data.stats.rejected,
-      pending: data.stats.pending,
       approvalRate: data.stats.approvalRate,
       avgQueueTime: avgQueue,
       medianQueueTime: medianQueueTime,
@@ -173,6 +183,7 @@ export async function GET(req: NextRequest) {
       metricsHistory: metricsHistory,
       overallNpsMean: npsOverallAvg._avg.rating || 0,
       weeklyNps: weeklyNps,
+      allTicketFeedback: allTicketFeedback,
     })
   } catch (err) {
     reportError(err instanceof Error ? err : new Error(String(err)), { endpoint: 'ship-certs' })
