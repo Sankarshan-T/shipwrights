@@ -35,12 +35,24 @@ export default async function Admin() {
 
         {(can(user.role, PERMS.users_view) ||
           can(user.role, PERMS.eng_full) ||
-          can(user.role, PERMS.logs_full)) && (
+          can(user.role, PERMS.logs_full) ||
+          can(user.role, PERMS.captain_dashboard)) && (
           <div className="mb-6 md:mb-8 max-w-2xl mx-auto">
             <h3 className="text-amber-500/70 font-mono text-xs uppercase tracking-wider mb-3 px-2">
               admin stuff
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+              {can(user.role, PERMS.captain_dashboard) && (
+                <div className="relative">
+                  <Link
+                    href="/admin/captain"
+                    className="block bg-amber-500/10 border-2 border-dashed border-amber-500 hover:border-amber-400 text-amber-400 hover:text-amber-300 font-mono text-sm px-4 md:px-6 py-3 rounded-2xl transition-all duration-200 hover:bg-amber-500/20 text-center shadow-lg shadow-amber-950/20 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    ⚓ Captain dashboard
+                  </Link>
+                  <Wip />
+                </div>
+              )}
               {can(user.role, PERMS.users_view) && (
                 <Link
                   href="/admin/users"
