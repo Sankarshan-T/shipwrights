@@ -16,7 +16,15 @@ export async function GET(req: NextRequest) {
     windowStart.setHours(0, 0, 0, 0)
     const metricsWindowStart = new Date(now)
     metricsWindowStart.setDate(metricsWindowStart.getDate() - 30)
-    const [data, pendingCerts, reviewStats, shipStats, metricsHistory, npsWeeklyStats, npsOverallAvg] = await Promise.all([
+    const [
+      data,
+      pendingCerts,
+      reviewStats,
+      shipStats,
+      metricsHistory,
+      npsWeeklyStats,
+      npsOverallAvg,
+    ] = await Promise.all([
       getCerts({}),
       prisma.shipCert.findMany({
         where: { status: 'pending', yswsReturnedAt: null },
@@ -67,9 +75,9 @@ export async function GET(req: NextRequest) {
       `,
       prisma.ticketFeedback.aggregate({
         _avg: {
-          rating: true
-        }
-      })
+          rating: true,
+        },
+      }),
     ])
 
     let oldestWait = '-'
@@ -132,7 +140,8 @@ export async function GET(req: NextRequest) {
       const dateKey = day.toISOString().split('T')[0]
       if (dateKey in pendingPerDay) {
         pendingPerDay[dateKey] = currentPending
-        currentPending = currentPending - (shipsPerDay[dateKey] || 0) + (reviewsPerDay[dateKey] || 0)
+        currentPending =
+          currentPending - (shipsPerDay[dateKey] || 0) + (reviewsPerDay[dateKey] || 0)
         if (currentPending < 0) currentPending = 0
       }
     }
