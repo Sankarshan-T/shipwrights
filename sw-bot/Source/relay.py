@@ -272,6 +272,13 @@ def handle_staff_reply(event):
                 thread_ts=ticket["staffThreadTs"],
                 text=f"Hey! Would you look at that, This ticket was marked as resolved by <@{user_id}>!",
             )
+            client.chat_postMessage(
+                thread_ts=ticket["userThreadTs"],
+                channel=USER_CHANNEL,
+                text="Feedback form!",
+                blocks=msg_blocks.feedback_message(json.dumps(ticket["id"])),
+                username="Shipwrighter Feedback"
+            )
             db.save_message(ticket["id"], 'BOT', 'Shipwrighter', None, f'ticket resolved by <@{user_id}>', True, None, resp["ts"])
             ping_ws(ticket["id"])
             client.chat_postMessage(
