@@ -35,4 +35,4 @@ CANNOT_CLOSE_OWN = "You cannot close your own ticket as a shipwright."
 MESSAGE_NOT_RECEIVED = "Hey! Looks like this ticket was resolved. Shipwrights did not receive your response."
 FEEDBACK_MESSAGE = "If you could give us 20 seconds of your time, we would love to know how we did in this ticket!\n3 random fillers get picked each month to earn 10 cookies each!"
 
-TICKET_PAY = 0.2
+TICKET_PAY = 0.3
