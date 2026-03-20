@@ -1,7 +1,7 @@
-import os, math, json
+import math, json
 from datetime import datetime, timedelta
 import pytz
-from globals import TICKET_PAY
+from globals import TICKET_PAY, DB_USER, DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD
 from dotenv import load_dotenv
 from mysql.connector import pooling
 
@@ -10,11 +10,11 @@ load_dotenv()
 db_pool = pooling.MySQLConnectionPool(
     pool_name="bot_pool",
     pool_size=5,
-    host=os.getenv("DB_HOST"),
-    port=int(os.getenv("DB_PORT", 3306)),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_NAME"),
+    host=DB_HOST,
+    port=DB_PORT,
+    user=DB_USER,
+    password=DB_PASSWORD,
+    database=DB_NAME,
 )
 
 def _format_seconds(seconds):

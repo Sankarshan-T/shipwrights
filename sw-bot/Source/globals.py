@@ -14,6 +14,11 @@ BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
 SWAI_KEY = os.getenv("SW_AI")
 PORT = int(os.getenv('PORT', '45100'))
 BOT_URL = os.getenv('BOT_URL', f'http://127.0.0.1:{PORT}')
+DB_NAME = os.getenv("DB_NAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_USER = os.getenv("DB_USER")
+DB_PORT = int(os.getenv("DB_PORT", 3306))
+DB_HOST = os.getenv("DB_HOST")
 
 MACROS = {
     "fraud": "Hey there!\nThe shipwrights team cannot help you with this query. Please forward any related questions to <@U091HC53CE8>.",
