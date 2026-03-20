@@ -1,6 +1,7 @@
 import os, math, json
 from datetime import datetime, timedelta
 import pytz
+from globals import TICKET_PAY
 from dotenv import load_dotenv
 from mysql.connector import pooling
 
@@ -260,6 +261,43 @@ def get_shipwrights():
     finally:
         cursor.close()
         db.close()
+
+
+def add_cookies(user_id, amount=TICKET_PAY):
+    db = get_db()
+    if not db or user_id is None:
+        return None
+
+    try:
+        increment = float(amount)
+    except (TypeError, ValueError):
+        return None
+
+    if increment <= 0:
+        return None
+
+    cursor = db.cursor(dictionary=True)
+    try:
+        cursor.execute(
+            "UPDATE users SET cookieBalance = cookieBalance + %s WHERE id = %s",
+            (increment, user_id),
+        )
+        if cursor.rowcount == 0:
+            db.rollback()
+            return None
+
+        db.commit()
+        cursor.execute("SELECT cookieBalance FROM users WHERE id = %s", (user_id,))
+        row = cursor.fetchone()
+        return float(row["cookieBalance"]) if row and row.get("cookieBalance") is not None else 0.0
+    except Exception as e:
+        print(f"couldn't increment user balance: {e}")
+        db.rollback()
+        return None
+    finally:
+        cursor.close()
+        db.close()
+
 def edit_message(message_ts, new_text):
     db = get_db()
     if not db:

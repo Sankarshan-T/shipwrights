@@ -267,6 +267,7 @@ def handle_staff_reply(event):
                 ]
             )
             cache.close_ticket(ticket["id"])
+            cache.claim_ticket(ticket["id"], user_id)
             resp = client.chat_postMessage(
                 channel=STAFF_CHANNEL,
                 thread_ts=ticket["staffThreadTs"],
@@ -342,7 +343,7 @@ def handle_staff_reply(event):
         if ticket["status"] != "open":
             return
         cache.close_ticket(ticket["id"])
-        db.claim_ticket(ticket["id"], user_id)
+        cache.claim_ticket(ticket["id"], user_id)
         try:
             client.reactions_add(
                 channel=STAFF_CHANNEL,

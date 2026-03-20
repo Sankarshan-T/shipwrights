@@ -34,3 +34,5 @@ TICKET_CLAIMED = "*This ticket has been claimed by <@(user_id)>!*"
 CANNOT_CLOSE_OWN = "You cannot close your own ticket as a shipwright."
 MESSAGE_NOT_RECEIVED = "Hey! Looks like this ticket was resolved. Shipwrights did not receive your response."
 FEEDBACK_MESSAGE = "If you could give us 20 seconds of your time, we would love to know how we did in this ticket!\n3 random fillers get picked each month to earn 10 cookies each!"
+
+TICKET_PAY = 0.2

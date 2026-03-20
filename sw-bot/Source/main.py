@@ -133,7 +133,7 @@ def resolve_detected(ack, body, client):
     user_info = helpers.get_user_info(client, user_id)
     if ticket["status"] == "open":
         cache.close_ticket(ticket_id)
-        db.claim_ticket(ticket_id, user_id)
+        cache.claim_ticket(ticket_id, user_id)
         client.chat_postMessage(
             channel=STAFF_CHANNEL,
             thread_ts=ticket["staffThreadTs"],
@@ -188,7 +188,7 @@ def resolve_ticket(ack, body, client):
     user_id = body["user"]["id"]
     if (helpers.is_shipwright(user_id) and user_id != ticket["userId"]) and ticket["status"] == "open":
         cache.close_ticket(ticket_id)
-        db.claim_ticket(ticket_id, user_id)
+        cache.claim_ticket(ticket_id, user_id)
         client.chat_postMessage(
             channel=STAFF_CHANNEL,
             thread_ts=ticket["staffThreadTs"],
