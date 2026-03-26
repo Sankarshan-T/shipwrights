@@ -3,6 +3,8 @@ import schedule
 import db
 from globals import REMINDERS_CHANNEL, client
 
+scheduler = schedule.Scheduler()
+
 def message_blocks():
 	reviews_done = db.recent_reviews()
 	relative_performance = ((reviews_done["yesterday"] - reviews_done["day_before"]) / (reviews_done["day_before"] if reviews_done["day_before"] != 0 else 1)) * 100
@@ -56,7 +58,7 @@ def send_reminder():
 
 
 def reminders_loop():
-	schedule.every().day.at("00:00", "US/Eastern").do(send_reminder)
+	scheduler.every().day.at("00:00", "US/Eastern").do(send_reminder)
 	while True:
-		schedule.run_pending()
+		scheduler.run_pending()
 		time.sleep(30)

@@ -3,6 +3,8 @@ import time
 import db
 from globals import client, STAFF_CHANNEL, REMINDERS_CHANNEL
 
+scheduler = schedule.Scheduler()
+
 def _format_date(dt, fallback="Unknown"):
     if not dt:
         return fallback
@@ -118,7 +120,7 @@ def check_unresolved_tickets():
         print(f"couldn't notify for tickets: {e}")
 
 def alerts_loop():
-    schedule.every().day.at("11:00", "UTC").do(check_unresolved_tickets)
+    scheduler.every().day.at("11:00", "UTC").do(check_unresolved_tickets)
     while True:
-        schedule.run_pending()
+        scheduler.run_pending()
         time.sleep(30)
