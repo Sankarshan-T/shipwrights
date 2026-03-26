@@ -56,9 +56,13 @@ type UniqueProjectRow = { approved: bigint; rejected: bigint }
  * Pass `before` to exclude verdicts completed on or after that date (for yesterday's rate).
  */
 export async function fetchUniqueProjectStats(before?: Date) {
-  const dateFilter = before ? `AND sc.reviewCompletedAt < '${before.toISOString()}'` : ''
+  const params: unknown[] = []
+  const scDateFilter = before ? (params.push(before), `AND sc.reviewCompletedAt < ?`) : ''
+  const sc2DateFilter = before ? (params.push(before), `AND sc2.reviewCompletedAt < ?`) : ''
+  const nullDateFilter = before ? (params.push(before), `AND reviewCompletedAt < ?`) : ''
 
-  const rows = await prisma.$queryRawUnsafe<UniqueProjectRow[]>(`
+  const rows = await prisma.$queryRawUnsafe<UniqueProjectRow[]>(
+    `
     SELECT
       SUM(status = 'approved') AS approved,
       SUM(status = 'rejected') AS rejected
@@ -67,13 +71,13 @@ export async function fetchUniqueProjectStats(before?: Date) {
       FROM ship_certs sc
       WHERE sc.status IN ('approved', 'rejected')
         AND sc.ftProjectId IS NOT NULL
-        ${dateFilter}
+        ${scDateFilter}
         AND sc.id = (
           SELECT sc2.id FROM ship_certs sc2
           WHERE sc2.ftProjectId = sc.ftProjectId
             AND sc2.status IN ('approved', 'rejected')
-            ${dateFilter}
-          ORDER BY sc2.reviewCompletedAt DESC
+            ${sc2DateFilter}
+          ORDER BY sc2.reviewCompletedAt DESC, sc2.id DESC
           LIMIT 1
         )
       UNION ALL
@@ -81,9 +85,11 @@ export async function fetchUniqueProjectStats(before?: Date) {
       FROM ship_certs
       WHERE status IN ('approved', 'rejected')
         AND ftProjectId IS NULL
-        ${before ? `AND reviewCompletedAt < '${before.toISOString()}'` : ''}
+        ${nullDateFilter}
     ) latest
-  `)
+  `,
+    ...params
+  )
 
   const approved = Number(rows[0]?.approved ?? 0)
   const rejected = Number(rows[0]?.rejected ?? 0)
