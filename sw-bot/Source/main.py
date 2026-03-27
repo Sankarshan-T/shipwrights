@@ -2,7 +2,7 @@ import os, json, summary, threading
 import db, helpers, api, home, relay, ai, msg_blocks, alerts
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
-from globals import BOT_TOKEN, USER_CHANNEL, STAFF_CHANNEL, RESOLVE_MESSAGES, USER_CLOSED_MESSAGE, TICKET_CLAIMED, ALREADY_CLAIMED, CANNOT_CLOSE_OWN, MESSAGE_NOT_RECEIVED
+from globals import BOT_TOKEN, USER_CHANNEL, STAFF_CHANNEL, RESOLVE_MESSAGES, USER_CLOSED_MESSAGE, TICKET_CLAIMED, ALREADY_CLAIMED, CANNOT_CLOSE_OWN, MESSAGE_NOT_RECEIVED, REMINDERS_CHANNEL
 from cache import cache
 
 
@@ -336,6 +336,19 @@ def rating_form(ack, view):
     rating = view["state"]["values"]["rating_block"]["number_input-action"]["value"]
     comment = view["state"]["values"]["comment_block"]["plain_text_input-action"]["value"]
     cache.save_feedback(ticket_id, rating, comment)
+
+@slack_app.command("/metasw")
+def meta_us(ack, client, respond, body):
+    ack()
+    user_id = body["user"]["id"]
+    if helpers.is_shipwright(user_id):
+        text =  body["text"]
+        client.chat_postMessage(
+            channel=REMINDERS_CHANNEL,
+            text=f"*Meta Post*\n>{text}"
+        )
+    else:
+        respond("You are not a shipwright!")
 
 def run_bot():
     handler = SocketModeHandler(slack_app, os.getenv("SLACK_APP_TOKEN"))
