@@ -340,7 +340,7 @@ def rating_form(ack, view):
 @slack_app.command("/metasw")
 def meta_us(ack, client, respond, body):
     ack()
-    user_id = body["user"]["id"]
+    user_id = body["user_id"]
     if helpers.is_shipwright(user_id):
         text =  body["text"]
         client.chat_postMessage(
