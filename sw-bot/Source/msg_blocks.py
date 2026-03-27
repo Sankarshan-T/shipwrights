@@ -1,8 +1,8 @@
-from globals import FEEDBACK_MESSAGE
+from globals import FEEDBACK_MESSAGE, ANNOUNCE_META
 
 
 def feedback_message(ticket_id):
-    return [
+	return [
 		{
 			"type": "section",
 			"text": {
@@ -29,3 +29,38 @@ def feedback_message(ticket_id):
 		}
 	]
 
+def meta_message_blocks(text):
+	blocks = [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "Shipwright Meta Post",
+				"emoji": True
+			}
+		},
+		{
+			"type": "divider"
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": f">{text}"
+			}
+		},
+		{
+			"type": "divider"
+		},
+	]
+	if ANNOUNCE_META:
+		blocks.append({
+			"type": "context",
+			"elements": [
+				{
+					"type": "mrkdwn",
+					"text": "<!subteam^S09TJU4TT36>"
+				}
+			]
+		})
+	return blocks

@@ -345,7 +345,9 @@ def meta_us(ack, client, respond, body):
         text =  body["text"]
         client.chat_postMessage(
             channel=REMINDERS_CHANNEL,
-            text=f"*Meta Post*\n>{text}"
+            blocks=msg_blocks.meta_message_blocks(text),
+            text="Shipwright Meta",
+            username="Shipwright Meta"
         )
     else:
         respond("You are not a shipwright!")
