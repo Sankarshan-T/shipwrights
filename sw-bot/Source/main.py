@@ -389,11 +389,6 @@ def modify_votes(ack, body, client):
         blocks=msg_blocks.meta_votes_message(result, meta_message_ts),
         text="Vote on this meta"
     )
-    client.chat_postEphemeral(
-        channel=META_CHANNEL,
-        user=user_id,
-        text="Your vote has been counted!"
-    )
 
 
 @slack_app.action("delete_meta")
