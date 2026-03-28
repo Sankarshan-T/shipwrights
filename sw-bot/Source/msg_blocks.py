@@ -50,6 +50,9 @@ def meta_votes_message(votes, meta_message_ts):
 			}
 		},
 		{
+			"type": "divider"
+		},
+		{
 			"type": "actions",
 			"elements": [
 				{

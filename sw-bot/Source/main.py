@@ -354,7 +354,8 @@ def meta_us(ack, client, respond, body):
             channel=META_CHANNEL,
             blocks=msg_blocks.meta_votes_message(0, meta_ts),
             text="Vote on this meta",
-            username="Shipwright Meta"
+            username="Shipwright Meta",
+            thread_ts=meta_ts
         )
         cache.save_meta(text, meta_ts, vote_resp["ts"])
     else:
@@ -369,11 +370,6 @@ def modify_votes(ack, body, client):
     delta = payload["direction"]
     result = cache.add_vote(meta_message_ts, user_id, delta)
     if result is False:
-        client.chat_postEphemeral(
-            channel=META_CHANNEL,
-            user=user_id,
-            text="You've already voted on this meta!"
-        )
         return
     if result is None:
         client.chat_postEphemeral(
@@ -395,7 +391,7 @@ def modify_votes(ack, body, client):
 def delete_meta(ack, body, client):
     ack()
     user_id = body["user"]["id"]
-    if user_id not in ["U092F9A8VMY", "U091PP9SN02"]:
+    if not helpers.is_shipwright(user_id):
         client.chat_postEphemeral(
             channel=META_CHANNEL,
             user=user_id,
@@ -404,9 +400,9 @@ def delete_meta(ack, body, client):
         return
     meta_message_ts = body["actions"][0]["value"]
     meta = cache.get_meta_by_meta_ts(meta_message_ts)
-    client.chat_delete(channel=META_CHANNEL, ts=meta_message_ts)
     if meta:
         client.chat_delete(channel=META_CHANNEL, ts=meta["votes_message_ts"])
+    client.chat_delete(channel=META_CHANNEL, ts=meta_message_ts)
 
 def run_bot():
     handler = SocketModeHandler(slack_app, os.getenv("SLACK_APP_TOKEN"))

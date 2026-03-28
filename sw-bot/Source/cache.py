@@ -170,7 +170,7 @@ class Cache:
                 "votes": 0,
                 "votes_message_ts": votes_message_ts,
                 "text": text,
-                "voters": set(),
+                "voters": {},
         }
 
     def get_meta_by_meta_ts(self, meta_message_ts):
@@ -183,7 +183,7 @@ class Cache:
                     "votes": meta_data["votes"],
                     "votes_message_ts": meta_data["votesMessageTs"],
                     "text": meta_data["text"],
-                    "voters": set(),
+                    "voters": {},
                 }
                 return self.metas[meta_message_ts]
             else:
@@ -194,12 +194,14 @@ class Cache:
         meta = self.get_meta_by_meta_ts(meta_message_ts)
         if not meta:
             return None
-        if user_id in meta["voters"]:
+        previous = meta["voters"].get(user_id)
+        if previous == delta:
             return False
-        new_count = db.update_meta_votes(meta_message_ts, delta)
+        net = delta - previous if previous is not None else delta
+        new_count = db.update_meta_votes(meta_message_ts, net)
         if new_count is None:
             return None
-        meta["voters"].add(user_id)
+        meta["voters"][user_id] = delta
         meta["votes"] = new_count
         return new_count
 
