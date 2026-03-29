@@ -192,8 +192,9 @@ class Cache:
 
     def add_vote(self, meta_message_ts, user_id, delta):
         meta = self.get_meta_by_meta_ts(meta_message_ts)
-        if not meta:
+        if not meta or {user_id: meta_message_ts} in self.ignorable:
             return None
+        self.ignorable.append({user_id: meta_message_ts})
         previous = meta["voters"].get(user_id)
         if previous == delta:
             return False
@@ -203,6 +204,7 @@ class Cache:
             return None
         meta["voters"][user_id] = delta
         meta["votes"] = new_count
+        self.ignorable.remove({user_id: meta_message_ts})
         return new_count
 
 cache = Cache()

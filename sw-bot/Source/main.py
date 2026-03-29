@@ -372,11 +372,6 @@ def modify_votes(ack, body, client):
     if result is False:
         return
     if result is None:
-        client.chat_postEphemeral(
-            channel=META_CHANNEL,
-            user=user_id,
-            text="Something went wrong recording your vote."
-        )
         return
     meta = cache.get_meta_by_meta_ts(meta_message_ts)
     client.chat_update(
