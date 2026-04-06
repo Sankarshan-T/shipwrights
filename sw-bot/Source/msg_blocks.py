@@ -145,3 +145,38 @@ def meta_message_blocks(text, user_id):
 			]
 		})
 	return blocks
+
+
+def aide_message():
+	return [
+		{
+			"type": "header",
+			"text": {
+				"type": "plain_text",
+				"text": "Project Shipping Help",
+				"emoji": True
+			}
+		},
+		{
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": "Unsure how to get your project shipped? Get personalized help now!"
+			}
+		},
+		{
+			"type": "actions",
+			"elements": [
+				{
+					"type": "button",
+					"text": {
+						"type": "plain_text",
+						"text": "Create Help Ticket!",
+						"emoji": True
+					},
+					"action_id": "create_aide",
+					"style": "primary"
+				}
+			]
+		}
+	]

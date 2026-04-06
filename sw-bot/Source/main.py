@@ -1,9 +1,16 @@
-import os, json, summary, threading
+import os, json, summary, threading, logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 import db, helpers, api, home, relay, ai, msg_blocks, alerts
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from globals import BOT_TOKEN, USER_CHANNEL, STAFF_CHANNEL, RESOLVE_MESSAGES, USER_CLOSED_MESSAGE, TICKET_CLAIMED, ALREADY_CLAIMED, CANNOT_CLOSE_OWN, MESSAGE_NOT_RECEIVED, META_CHANNEL, ENVIRONMENT, ADMINS
 from cache import cache
+from worker import worker
 
 
 slack_app = App(token=BOT_TOKEN, signing_secret=os.getenv("SLACK_SIGNING_SECRET"), process_before_response=True)
@@ -36,6 +43,7 @@ def msg(event):
             return
         relay.edit_message(event)
         return
+    worker.enqueue_sticky_message_update()
     if channel == USER_CHANNEL:
         if relay.handle_client_reply(event):
             pass
@@ -402,7 +410,9 @@ if __name__ == "__main__":
     reminder_thread = threading.Thread(target=summary.reminders_loop, daemon=True)
     server_thread = threading.Thread(target=api.run_server, daemon=True)
     alerts_thread = threading.Thread(target=alerts.alerts_loop, daemon=True)
+    worker_thread = threading.Thread(target=worker.run, daemon=True)
     server_thread.start()
     reminder_thread.start()
     alerts_thread.start()
+    worker_thread.start()
     run_bot()

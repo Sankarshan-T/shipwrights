@@ -4,6 +4,7 @@ import db
 class Cache:
 
     def __init__(self):
+        self.sticky_message_ts = None
         self.ticket_users = {}
         self.tickets = {}
         self.feedback = {}

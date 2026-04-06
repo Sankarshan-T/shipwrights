@@ -6,6 +6,8 @@ load_dotenv()
 
 client = WebClient(token=os.getenv('SLACK_BOT_TOKEN'))
 REMINDERS_CHANNEL = os.getenv("REMINDER_CHANNEL_ID", "C09TTRZH94Z")
+AIDE_CHANNEL = os.getenv("AIDE_CHANNEL_ID")
+APP_ID = os.getenv("APP_ID")
 ANNOUNCE_META = os.getenv("ANNOUNCE_META", False)
 META_CHANNEL = os.getenv("META_CHANNEL_ID")
 DASH_URL = os.getenv("DASHBOARD_URL", "http://localhost:3000")

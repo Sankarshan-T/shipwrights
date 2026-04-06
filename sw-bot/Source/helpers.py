@@ -3,6 +3,7 @@ import views
 from collections import defaultdict
 from datetime import datetime, timedelta
 from cache import cache
+from globals import APP_ID
 
 rate_limits = defaultdict(list)
 MAX_REQS = 30
@@ -59,4 +60,10 @@ def get_flavortown_project(link):
     match = re.search(r"https://flavortown\.hackclub\.com/projects/(\d+)", link)
     if match:
         return match.group(1)
+    return None
+
+def find_sticky_from_history(messages):
+    for message in messages:
+        if message.get("app_id") == APP_ID and message.get("text") == "Create Help Ticket Now!":
+            return message["ts"]
     return None
