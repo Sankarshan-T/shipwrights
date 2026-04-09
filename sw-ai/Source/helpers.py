@@ -6,7 +6,6 @@ load_dotenv()
 SW_API_KEY = os.environ.get("SW_API_KEY")
 PORT = 45200
 OPENROUTER_KEY = os.environ.get("OPENROUTER_KEY")
-AI_MODEL = "google/gemini-3-flash-preview"
 
 logging.basicConfig(
     level=logging.ERROR,
@@ -549,9 +548,19 @@ def format_submission_validation_message(readme, readme_link, demo_link, repo_ur
     project_releases = get_releases(repo_url)
 
     try:
-        return_code = requests.get(url=demo_link, headers=HEADERS, timeout=10).status_code
+        demo_status = requests.get(url=demo_link, headers=HEADERS, timeout=10, allow_redirects=True).status_code
+        if demo_status < 400:
+            return_code = "Reachable"
+        elif demo_status in (401, 403, 406, 429):
+            return_code = "Reachable (access restricted to bots/crawlers, likely works in browser)"
+        elif demo_status == 404:
+            return_code = "Not Found (404)"
+        elif demo_status >= 500:
+            return_code = f"Server Error ({demo_status})"
+        else:
+            return_code = f"Returned {demo_status}"
     except Exception:
-        return_code = "Errored"
+        return_code = "Could not connect (DNS failure or host unreachable)"
 
     if not project_releases.get("has"):
         project_releases = "Failed to fetch. Please ignore."
@@ -627,7 +636,7 @@ def format_submission_validation_message(readme, readme_link, demo_link, repo_ur
          {{"valid": true|false, "flags": [{{"field": "demo|readme|description|declaration|updated", "severity": "error|warning|suggestion", "message": "Friendly user-facing explanation"}}], "summary": "Overall message shown to the user"}}        
         """
 
-def get_ai_response(content=None, tokens=1000, timeout=60, keys=()):
+def get_ai_response(content=None, tokens=1000, timeout=60, ai_model="google/gemini-3-flash-preview", keys=()):
     try:
         response = requests.post(
             url="https://openrouter.ai/api/v1/chat/completions",
@@ -636,7 +645,7 @@ def get_ai_response(content=None, tokens=1000, timeout=60, keys=()):
                 "Content-Type": "application/json"
             },
             json={
-                "model": AI_MODEL,
+                "model": ai_model,
                 "max_tokens": tokens,
                 "messages": [
                     {
