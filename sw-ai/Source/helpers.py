@@ -549,6 +549,7 @@ def format_submission_validation_message(readme, readme_link, demo_link, repo_ur
 
     try:
         demo_status = requests.get(url=demo_link, headers=HEADERS, timeout=10, allow_redirects=True).status_code
+        logger.error(f"[demo check] {demo_link} -> {demo_status}")
         if demo_status < 400:
             return_code = "Reachable"
         elif demo_status in (401, 403, 406, 429):
@@ -559,7 +560,8 @@ def format_submission_validation_message(readme, readme_link, demo_link, repo_ur
             return_code = f"Server Error ({demo_status})"
         else:
             return_code = f"Returned {demo_status}"
-    except Exception:
+    except Exception as e:
+        logger.error(f"[demo check] {demo_link} -> exception: {e}")
         return_code = "Could not connect (DNS failure or host unreachable)"
 
     if not project_releases.get("has"):
