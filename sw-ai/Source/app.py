@@ -169,7 +169,7 @@ def check_project():
 
     repo_url = data.get("repo_url", "")
     readme_url = data.get("readme_url", "")
-    demo_url = data.get("demoUrl", "")
+    demo_url = data.get("demo_url", data.get("demoUrl", ""))
     ai_declaration = data.get("ai_declaration", "")
     is_updated = data.get("is_updated", False)
     project_description = data.get("project_description", "")
