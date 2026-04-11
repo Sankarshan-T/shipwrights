@@ -166,7 +166,7 @@ def analyze_rejection_reason():
 @app.get("/projects/check")
 def check_project():
     data = request.json
-
+    logger.info(f"Checking project: {data}")
     repo_url = data.get("repo_url", "")
     readme_url = data.get("readme_url", "")
     demo_url = data.get("demo_url", data.get("demoUrl", ""))
@@ -188,7 +188,7 @@ def check_project():
         ),
         timeout=10,
     )
-
+    logger.info(f"AI response: {response}")
     return jsonify(response.get("content", {})), 200
 
 if __name__ == "__main__":
