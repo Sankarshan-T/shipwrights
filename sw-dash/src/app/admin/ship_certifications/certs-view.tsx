@@ -138,7 +138,8 @@ export function CertsView({ initial, isAdmin = false }: Props) {
   const params = useSearchParams()
   const router = useRouter()
   const [ftType, setFtType] = useState(params.get('ftType') || 'all')
-  const rawStatus = params.get('adminReview') === 'true' ? 'admin' : params.get('status') || 'pending'
+  const rawStatus =
+    params.get('adminReview') === 'true' ? 'admin' : params.get('status') || 'pending'
   const [status, setStatus] = useState(rawStatus === 'admin' && !isAdmin ? 'pending' : rawStatus)
   const [sortBy, setSortBy] = useState(params.get('sortBy') || 'oldest')
   const [search, setSearch] = useState(params.get('search') || '')
