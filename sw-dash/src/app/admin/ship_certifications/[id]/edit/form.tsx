@@ -299,9 +299,7 @@ export function Form({ shipId }: Props) {
               <h3 className="text-amber-400 font-mono text-sm font-bold mb-3 md:mb-4">
                 Proof Video
                 {cert.ftType === 'reship' && (
-                  <span className="ml-2 text-cyan-300 font-normal">
-                    (optional — reship)
-                  </span>
+                  <span className="ml-2 text-cyan-300 font-normal">(optional — reship)</span>
                 )}
               </h3>
               <div className="mb-4">
