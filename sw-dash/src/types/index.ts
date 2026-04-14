@@ -69,6 +69,7 @@ export interface ShipCert {
   }
   status: string
   ftType?: string | null
+  needsAdminReview?: boolean
   feedback?: string
   proofVideo?: string
   reviewer?: {

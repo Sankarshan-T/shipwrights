@@ -123,16 +123,17 @@ export async function POST(request: NextRequest) {
     }
 
     let previousVideoUrl: string | null = null
+    let needsAdminReview = false
     if (ftType === 'reship') {
       const prev = await prisma.shipCert.findFirst({
-        where: {
-          ftProjectId: String(ftProjectId),
-          proofVideoUrl: { not: null },
-        },
-        orderBy: { reviewCompletedAt: 'desc' },
-        select: { proofVideoUrl: true },
+        where: { ftProjectId: String(ftProjectId) },
+        orderBy: { createdAt: 'desc' },
+        select: { proofVideoUrl: true, status: true, yswsReturnedAt: true },
       })
-      previousVideoUrl = prev?.proofVideoUrl || null
+      previousVideoUrl = prev?.proofVideoUrl ?? null
+      const wasApproved =
+        prev?.status === 'approved' || (prev?.status === 'pending' && prev?.yswsReturnedAt !== null)
+      needsAdminReview = !prev || !wasApproved
     }
 
     const cert = await prisma.shipCert.create({
@@ -151,6 +152,7 @@ export async function POST(request: NextRequest) {
           ? `${Math.floor(metadata.devTime / 3600)}h ${Math.floor((metadata.devTime % 3600) / 60)}m`
           : null,
         proofVideoUrl: previousVideoUrl,
+        needsAdminReview,
         status: 'pending',
       },
     })

@@ -10,6 +10,7 @@ interface Filters {
   from?: string | null
   to?: string | null
   search?: string | null
+  adminReview?: boolean
 }
 
 type StatsRow = {
@@ -272,6 +273,7 @@ async function fetchList(filters: Filters) {
   if (type && type.length > 0) where.projectType = { in: type }
   if (filters.ftType && filters.ftType !== 'all') where.ftType = filters.ftType
   if (status && status !== 'all') where.status = status
+  where.needsAdminReview = filters.adminReview === true
   if (filters.from || filters.to) {
     where.createdAt = {
       ...(filters.from ? { gte: new Date(filters.from) } : {}),
@@ -371,6 +373,7 @@ async function getList(filters: Filters) {
     from: filters.from || null,
     to: filters.to || null,
     search: filters.search || null,
+    adminReview: filters.adminReview === true ? 'true' : 'false',
   })
   return cache(key, 15, () => fetchList(filters))
 }

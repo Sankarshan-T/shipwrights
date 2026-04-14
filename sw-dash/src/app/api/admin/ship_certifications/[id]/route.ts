@@ -63,6 +63,10 @@ export const GET = withParams(PERMS.certs_view)(async ({ user, params }) => {
       return NextResponse.json({ error: 'ship doesnt exist dipshit' }, { status: 404 })
     }
 
+    if (cert.needsAdminReview && !can(user.role, PERMS.certs_admin)) {
+      return NextResponse.json({ error: 'this cert is under admin review' }, { status: 403 })
+    }
+
     let internalNotes: InternalNote[] = []
     if (cert.internalNotes) {
       try {
@@ -121,6 +125,7 @@ export const GET = withParams(PERMS.certs_view)(async ({ user, params }) => {
       },
       status: cert.status,
       ftType: cert.ftType,
+      needsAdminReview: cert.needsAdminReview,
       feedback: cert.reviewFeedback,
       proofVideo: cert.proofVideoUrl,
       reviewer: cert.reviewer
@@ -203,6 +208,10 @@ export const PATCH = withParams(PERMS.certs_edit)(async ({ user, req, params, ip
 
     if (!cert) {
       return NextResponse.json({ error: 'ship doesnt exist dipshit' }, { status: 404 })
+    }
+
+    if (cert.needsAdminReview && !can(user.role, PERMS.certs_admin)) {
+      return NextResponse.json({ error: 'this cert is under admin review' }, { status: 403 })
     }
 
     if (verdict && cert.status !== 'pending') {
