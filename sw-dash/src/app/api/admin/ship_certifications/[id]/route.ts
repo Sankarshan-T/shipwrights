@@ -63,10 +63,6 @@ export const GET = withParams(PERMS.certs_view)(async ({ user, params }) => {
       return NextResponse.json({ error: 'ship doesnt exist dipshit' }, { status: 404 })
     }
 
-    if (cert.needsAdminReview && !can(user.role, PERMS.certs_admin)) {
-      return NextResponse.json({ error: 'this cert is under admin review' }, { status: 403 })
-    }
-
     let internalNotes: InternalNote[] = []
     if (cert.internalNotes) {
       try {
@@ -125,7 +121,6 @@ export const GET = withParams(PERMS.certs_view)(async ({ user, params }) => {
       },
       status: cert.status,
       ftType: cert.ftType,
-      needsAdminReview: cert.needsAdminReview,
       feedback: cert.reviewFeedback,
       proofVideo: cert.proofVideoUrl,
       reviewer: cert.reviewer
@@ -200,7 +195,6 @@ export const PATCH = withParams(PERMS.certs_edit)(async ({ user, req, params, ip
       payoutMulti?: number
       projectType?: string
       customBounty?: number | null
-      needsAdminReview?: boolean
     } = {}
 
     const cert = await prisma.shipCert.findUnique({
@@ -209,10 +203,6 @@ export const PATCH = withParams(PERMS.certs_edit)(async ({ user, req, params, ip
 
     if (!cert) {
       return NextResponse.json({ error: 'ship doesnt exist dipshit' }, { status: 404 })
-    }
-
-    if (cert.needsAdminReview && !can(user.role, PERMS.certs_admin)) {
-      return NextResponse.json({ error: 'this cert is under admin review' }, { status: 403 })
     }
 
     if (verdict && cert.status !== 'pending') {
@@ -244,7 +234,6 @@ export const PATCH = withParams(PERMS.certs_edit)(async ({ user, req, params, ip
       updateData.reviewCompletedAt = new Date()
       updateData.reviewerId = user.id
       updateData.claimerId = null
-      updateData.needsAdminReview = false
 
       if (!cert.reviewStartedAt) {
         updateData.reviewStartedAt = new Date()
@@ -447,11 +436,13 @@ export const PATCH = withParams(PERMS.certs_edit)(async ({ user, req, params, ip
     ) {
       if (updated.ftProjectId) {
         try {
+          const videoForFt =
+            cert.ftType === 'reship' ? undefined : updated.proofVideoUrl || undefined
           const synced = await syncFt(
             updated.ftProjectId,
             verdict.toLowerCase() as 'approved' | 'rejected' | 'pending',
             updated.reviewFeedback || '',
-            updated.proofVideoUrl || undefined,
+            videoForFt,
             updated.id,
             updated.projectType,
             updated.reviewer?.ftuid

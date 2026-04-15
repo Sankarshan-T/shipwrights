@@ -25,13 +25,16 @@ export async function syncFt(
   }
 
   const url = `${baseUrl}/webhooks/ship_cert`
-  const payload = {
+  const payload: Record<string, unknown> = {
     id: ftProjectId,
+    cert_id: certId ?? null,
     status: verdict,
     reason: feedback,
-    video_url: proofVideoUrl || null,
     project_type: projectType || null,
     ft_user_id: ftUserId || null,
+  }
+  if (proofVideoUrl !== undefined) {
+    payload.video_url = proofVideoUrl
   }
 
   try {
