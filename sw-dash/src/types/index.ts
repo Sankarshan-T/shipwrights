@@ -15,7 +15,6 @@ export interface Cert {
   yswsReturnReason?: string | null
   yswsReturnedBy?: string | null
   customBounty?: number | null
-  needsAdminReview?: boolean
 }
 
 export interface Stats {
@@ -23,7 +22,6 @@ export interface Stats {
   approved: number
   rejected: number
   pending: number
-  adminReview: number
   approvalRate: number
   avgQueueTime: string
   oldestInQueue: string
@@ -71,7 +69,6 @@ export interface ShipCert {
   }
   status: string
   ftType?: string | null
-  needsAdminReview?: boolean
   feedback?: string
   proofVideo?: string
   reviewer?: {

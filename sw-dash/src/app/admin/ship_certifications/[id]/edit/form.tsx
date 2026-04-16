@@ -195,6 +195,11 @@ export function Form({ shipId }: Props) {
             </h1>
             <h2 className="text-lg md:text-2xl font-mono text-amber-300 truncate">
               {cert.project}
+              {cert.ftType === 'reship' && (
+                <span className="ml-2 text-xs md:text-sm text-cyan-400 border border-cyan-700/60 px-2 py-0.5 rounded align-middle">
+                  reship
+                </span>
+              )}
             </h2>
           </div>
           <div className="flex items-start gap-3 shrink-0">
@@ -211,41 +216,6 @@ export function Form({ shipId }: Props) {
             )}
           </div>
         </div>
-
-        {cert.needsAdminReview && (
-          <div className="bg-gradient-to-br from-red-950/70 to-red-900/40 border-4 border-red-600/70 rounded-3xl p-4 md:p-5 mb-4 md:mb-6 shadow-xl shadow-red-950/30">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl md:text-3xl shrink-0">⚠️</span>
-              <div>
-                <h3 className="text-red-300 font-mono text-base md:text-lg font-bold mb-1">
-                  Admin review — reship anomaly
-                </h3>
-                <p className="text-red-100/90 font-mono text-sm">
-                  This reship didn&apos;t pass the standard checks (no prior approval found in our
-                  system, or the most recent prior cert was a rejection). Regular reviewers cannot
-                  see this.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {cert.ftType === 'reship' && (
-          <div className="bg-gradient-to-br from-cyan-950/60 to-cyan-900/30 border-4 border-cyan-600/60 rounded-3xl p-4 md:p-5 mb-4 md:mb-6 shadow-xl shadow-cyan-950/30">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl md:text-3xl shrink-0">🔄</span>
-              <div>
-                <h3 className="text-cyan-300 font-mono text-base md:text-lg font-bold mb-1">
-                  Reship — previously approved
-                </h3>
-                <p className="text-cyan-100/90 font-mono text-sm">
-                  This project has been approved before. It should be approved again — no
-                  rejections.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
           <div className="lg:col-span-2 space-y-4 md:space-y-6">
@@ -316,9 +286,6 @@ export function Form({ shipId }: Props) {
             <div className="bg-gradient-to-br from-zinc-900/90 to-black/90 border-4 border-amber-900/40 rounded-3xl p-4 md:p-6 shadow-xl shadow-amber-950/20">
               <h3 className="text-amber-400 font-mono text-sm font-bold mb-3 md:mb-4">
                 Proof Video
-                {cert.ftType === 'reship' && (
-                  <span className="ml-2 text-cyan-300 font-normal">(optional — reship)</span>
-                )}
               </h3>
               <div className="mb-4">
                 <label className="block mb-2">
