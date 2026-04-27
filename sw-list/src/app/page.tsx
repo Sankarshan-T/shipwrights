@@ -17,8 +17,8 @@ const ROLE_COLORS: Record<string, string> = {
   shipwright: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   trainee: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   retired: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30',
-  goi_reviewer: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  sw_goi: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+  ysws_reviewer: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  sw_ysws: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
 }
 
 function color(role: string) {
@@ -99,6 +99,12 @@ function Card({
             <span
               className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${color(m.role)}`}
             >
+              {
+                m.role === 'ysws_reviewer' && 'goi_reviewer'
+              }
+              {
+                m.role === 'sw_ysws' && 'sw_goi'
+              }
               {m.role}
             </span>
           )}
