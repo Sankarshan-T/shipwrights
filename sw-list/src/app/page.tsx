@@ -17,8 +17,8 @@ const ROLE_COLORS: Record<string, string> = {
   shipwright: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   trainee: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
   retired: 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30',
-  ysws_reviewer: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  sw_ysws: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+  goi_reviewer: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  sw_goi: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
 }
 
 function color(role: string) {
@@ -111,8 +111,8 @@ function Card({
 }
 
 export default async function Page() {
-  const crew = shuffle(await load(['trainee', 'shipwright', 'megawright', 'captain', 'sw_ysws']))
-  const reviewers = shuffle(await load(['ysws_reviewer', 'sw_ysws']))
+  const crew = shuffle(await load(['trainee', 'shipwright', 'megawright', 'captain', 'sw_goi']))
+  const reviewers = shuffle(await load(['goi_reviewer', 'sw_goi']))
   const quote = QUOTES[Math.floor(Math.random() * QUOTES.length)]
 
   return (
@@ -153,7 +153,7 @@ export default async function Page() {
         {reviewers.length > 0 && (
           <>
             <header className="text-center mb-8 mt-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">The YSWS Reviewers</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">The Guardiand of Integrity</h2>
               <p className="text-zinc-500">{reviewers.length} people reviewing YSWS projects</p>
             </header>
 
