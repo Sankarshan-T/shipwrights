@@ -99,9 +99,11 @@ function Card({
             <span
               className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border ${color(m.role)}`}
             >
-              {m.role === 'ysws_reviewer' && 'GOI' }
-              {m.role === 'sw_ysws' && 'sw_goi' }
-              {m.role}
+              {m.role === 'ysws_reviewer'
+                ? 'GOI'
+                : m.role === 'sw_ysws'
+                  ? 'sw_goi'
+                  : m.role}
             </span>
           )}
         </div>
